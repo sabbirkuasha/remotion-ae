@@ -6,7 +6,7 @@ import { parseColor } from "../color.ts";
 import type { Anim, Comp, Effect, Footage, Key, Layer, RGB, Scene, TextSpec, Vec } from "../ir.ts";
 import { curveAnim, minCurve, ramp, round, scaleCurve } from "../keys.ts";
 import { probe, type MediaInfo } from "../media.ts";
-import { timelineSchema, type ShotSpec, type Timeline } from "./schema.ts";
+import { shotSchema, timelineSchema, type ShotSpec, type Timeline } from "./schema.ts";
 import { computeTimings, type ShotTiming } from "./timing.ts";
 
 // KenBurns.tsx
@@ -52,14 +52,27 @@ export function remoProject(dir: string, lang?: string): RemoProject {
   };
 }
 
-export function loadTimeline(p: RemoProject): Timeline {
+/** Fields the schema doesn't know (e.g. added by a newer remo): parsing drops them, so they get reported. */
+function unknownFields(raw: Record<string, unknown>): string[] {
+  const extra = (obj: unknown, known: object, where: string) =>
+    obj && typeof obj === "object" ? Object.keys(obj).filter((k) => !(k in known)).map((k) => `${where}"${k}"`) : [];
+  const shots: Record<string, unknown>[] = Array.isArray(raw.shots) ? raw.shots : [];
+  return [
+    ...extra(raw, timelineSchema.shape, ""),
+    ...extra(raw.audio, timelineSchema.shape.audio.unwrap().shape, "audio."),
+    ...shots.flatMap((s, i) => extra(s, shotSchema.shape, `shot ${s?.id ?? i + 1}: `)),
+  ];
+}
+
+export function loadTimeline(p: RemoProject): { timeline: Timeline; unknown: string[] } {
   if (!existsSync(p.timeline)) throw new Error(`no ${path.basename(p.timeline)} in ${p.dir}`);
-  const parsed = timelineSchema.safeParse(JSON.parse(readFileSync(p.timeline, "utf8")));
+  const raw = JSON.parse(readFileSync(p.timeline, "utf8"));
+  const parsed = timelineSchema.safeParse(raw);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `  ${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`${path.basename(p.timeline)} does not match the remo schema:\n${issues}`);
   }
-  return parsed.data;
+  return { timeline: parsed.data, unknown: unknownFields(raw) };
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -88,11 +101,11 @@ const keys = <V>(...k: Key<V>[]): Anim<V> => ({ keys: k });
 
 /** Build the scene for a remo project. `scriptDir` is where the .jsx will live (for relative footage paths). */
 export function remoScene(p: RemoProject, scriptDir: string): { scene: Scene; notes: string[] } {
-  const t = loadTimeline(p);
+  const { timeline: t, unknown } = loadTimeline(p);
   const { fps, width: W, height: H } = t;
   const MIN = Math.min(W, H);
   const center: Vec = [W / 2, H / 2];
-  const notes: string[] = [];
+  const notes = unknown.map((f) => `${f} is not a remo field this exporter knows; left out`);
   const errors: string[] = [];
 
   // ------------------------------------------------------------ footage

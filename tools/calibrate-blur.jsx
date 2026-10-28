@@ -1,8 +1,9 @@
 // Blur calibration: renders the vertical fixture's backdrop (cover x1.15, Levels 0.55) at several Gaussian Blur
-// strengths. tools/calibrate-blur.mjs scores them against remo's frame. Everything it creates is removed again.
+// strengths. Run through tools/calibrate-blur.ts, which defines FIXTURE_IMAGE and OUT_DIR and scores the frames
+// against remo's. Everything it creates in the project is removed again.
 (function () {
-  var fixture = "D:/mdProjects/remotion-ae/fixtures/vertical/assets/images/01_street.jpg";
-  var outDir = "D:/mdProjects/remotion-ae/test-output/calibrate";
+  var fixture = FIXTURE_IMAGE;
+  var outDir = OUT_DIR;
   var cover = Math.max(1080 / 1376, 1920 / 768);
   var factors = [1, 1.5, 2, 2.5, 3, 3.5, 4];
   var item = app.project.importFile(new ImportOptions(new File(fixture)));

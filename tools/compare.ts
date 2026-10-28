@@ -80,7 +80,7 @@ if (!dir || dir.startsWith("--")) {
   process.exit(2);
 }
 const project = remoProject(dir, flag("--lang"));
-const t = loadTimeline(project);
+const t = loadTimeline(project).timeline;
 const out = path.resolve(flag("--out") ?? path.join(ROOT, "test-output", path.basename(project.dir) + project.suffix));
 const remoRoot = path.resolve(flag("--remo") ?? path.join(ROOT, "..", "remo"));
 const picks: Pick[] = flag("--frames")

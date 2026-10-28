@@ -2,6 +2,17 @@
 
 Newest first. Status of each phase is in [plan.md](plan.md).
 
+## 2026-10-28 (evening): open source
+
+- The repository is public: https://github.com/sabbirkuasha/remotion-ae, MIT license.
+- README rewritten for people finding the project: what it does, requirements, usage, the remo format,
+  limitations, how it works, how it is verified.
+- Nothing machine-specific is left in the code: the bridge finds After Effects through the registry
+  (scanning drive letters hung on this machine's Remote Desktop drives), and the calibration tool gets its paths
+  from the repository location.
+- Timeline fields the exporter doesn't know (e.g. from a newer remo) are now reported as notes instead of being
+  dropped silently.
+
 ## 2026-10-28 (afternoon): Phase 1 built and matched to Remotion
 
 **Built**
@@ -68,5 +79,4 @@ Newest first. Status of each phase is in [plan.md](plan.md).
    shows. The same happens to a contained still with `motion: "none"` (`KenBurns.tsx`); both confirmed by
    rendering with remo. The After Effects export shows the intended result. The fix in remo is small
    (`position: relative` on the video/image). Fix it?
-3. **git:** start a repository in `remotion-ae` so each phase is a commit?
-4. **Phase 2 scope** (Remotion components, see [plan.md](plan.md)) when you are ready.
+3. **Phase 2 scope** (Remotion components, see [plan.md](plan.md)) when you are ready.

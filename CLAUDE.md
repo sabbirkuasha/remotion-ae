@@ -34,8 +34,10 @@ decode and resample images differently.
 
 ## Driving After Effects
 
-After Effects 2026 (26.5) is at `D:\Program Files\Adobe\Adobe After Effects 2026\Support Files` and usually running.
-`AFTERFX` overrides the path.
+The bridge (Windows) uses the newest After Effects listed in the registry
+(`HKLM\SOFTWARE\Adobe\After Effects\<version>\InstallPath`); `AFTERFX` overrides the path to `AfterFX.exe`.
+Don't scan drive letters for it: checks on network/RDP drives can hang. Developed against After Effects 2026 (26.5),
+usually already running.
 
 - A script's last expression is its result; a thrown error comes back with file and line.
 - Dialogs are suppressed while it runs. A timeout usually means a modal dialog is open in AE.

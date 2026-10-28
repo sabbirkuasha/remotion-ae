@@ -1,13 +1,29 @@
-// Run ExtendScript inside the running After Effects and get its result back.
+// Run ExtendScript inside the running After Effects and get its result back (Windows: AfterFX.exe -r).
 // The script's last expression is its result; a thrown error is re-thrown here with file and line.
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { asciiLiteral } from "./jsx.ts";
 
-export const AFTERFX =
-  process.env.AFTERFX ?? "D:\\Program Files\\Adobe\\Adobe After Effects 2026\\Support Files\\AfterFX.exe";
+/**
+ * AFTERFX if set, else the newest installed version according to the registry
+ * (HKLM\SOFTWARE\Adobe\After Effects\<version>\InstallPath). Scanning drives instead can hang on network drives.
+ */
+export function findAfterEffects(): string {
+  if (process.env.AFTERFX) return process.env.AFTERFX;
+  const r = spawnSync("reg", ["query", "HKLM\\SOFTWARE\\Adobe\\After Effects", "/s", "/v", "InstallPath"], {
+    encoding: "utf8",
+    timeout: 10_000,
+  });
+  const found: { version: number; exe: string }[] = [];
+  for (const m of (r.stdout ?? "").matchAll(/After Effects\\([\d.]+)\s+InstallPath\s+REG_SZ\s+(.+)/g)) {
+    const exe = join(m[2].trim(), "AfterFX.exe");
+    if (existsSync(exe)) found.push({ version: parseFloat(m[1]), exe });
+  }
+  if (!found.length) throw new Error("After Effects not found; set AFTERFX to the path of AfterFX.exe");
+  return found.sort((a, b) => b.version - a.version)[0].exe;
+}
 
 const RUNS = fileURLToPath(new URL("../.runs/", import.meta.url));
 
@@ -16,6 +32,7 @@ const jsxPath = (p: string) => p.replace(/\\/g, "/");
 export async function runScript(script: string, { timeoutSec = 120 } = {}): Promise<string> {
   const file = resolve(script);
   if (!existsSync(file)) throw new Error(`no such script: ${file}`);
+  const afterEffects = findAfterEffects();
   mkdirSync(RUNS, { recursive: true });
   const id = `${Date.now()}_${process.pid}`;
   const resultPath = join(RUNS, `${id}.json`);
@@ -46,7 +63,7 @@ export async function runScript(script: string, { timeoutSec = 120 } = {}): Prom
 `,
   );
 
-  spawn(AFTERFX, ["-r", wrapperPath], { detached: true, stdio: "ignore" }).unref();
+  spawn(afterEffects, ["-r", wrapperPath], { detached: true, stdio: "ignore" }).unref();
 
   const deadline = Date.now() + timeoutSec * 1000;
   try {

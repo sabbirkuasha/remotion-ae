@@ -1,7 +1,7 @@
 // npm run export -- <remo project> [--lang bn] [--out file.jsx] [--run] [--replace]
 //   Writes an After Effects script that builds the project (default <project>/renders/after-effects[.lang].jsx).
 //   --run      also build it now in the running After Effects
-//   --replace  with --run: delete an earlier import of the same project first
+//   --replace  the script first deletes an earlier import of the same project (handy with --run)
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { runScript } from "./bridge.ts";
