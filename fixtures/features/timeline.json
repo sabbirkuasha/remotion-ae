@@ -1,0 +1,71 @@
+{
+  "title": "Features fixture",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "shots": [
+    {
+      "id": "street",
+      "seconds": 3,
+      "image": "images/01_street.jpg",
+      "clip": "clips/street.mp4",
+      "clipStart": 0.5,
+      "clipVolume": 0.6,
+      "fit": "contain",
+      "caption": "ঢাকা, সকাল ছয়টা",
+      "transition": "flash",
+      "transitionSeconds": 0.6,
+      "beat": "clip with clipStart, own sound, contain over the image backdrop, Bangla caption"
+    },
+    {
+      "id": "up",
+      "seconds": 3.5,
+      "image": "images/02_r1.jpg",
+      "motion": "pan-up",
+      "caption": "A long caption that has to wrap onto a second line because it is wider than the box allows",
+      "voiceover": "audio/vo_pan.mp3",
+      "voiceoverDelay": 0.3,
+      "transition": "warm-sweep",
+      "transitionSeconds": 1,
+      "beat": "pan-up, wrapped caption, delayed voiceover"
+    },
+    {
+      "id": "down",
+      "seconds": 3,
+      "image": "images/03_r2.jpg",
+      "motion": "pan-down",
+      "caption": "রঙিন রিকশা, colourful rickshaw",
+      "transition": "slide-up",
+      "beat": "pan-down, mixed Bangla and English"
+    },
+    {
+      "id": "still",
+      "seconds": 2.5,
+      "image": "images/04_r3.jpg",
+      "motion": "none",
+      "transition": "slide-down",
+      "beat": "no motion, no caption"
+    },
+    {
+      "id": "away",
+      "seconds": 3,
+      "image": "images/05_r4.jpg",
+      "motion": "pan-right",
+      "transition": "slide-right",
+      "beat": "pan-right"
+    },
+    {
+      "id": "end",
+      "seconds": 4.5,
+      "color": "#1a1410",
+      "lines": ["The end", "শেষ", "Made with remo"],
+      "voiceover": "audio/vo_end.mp3",
+      "beat": "colour hold with closing lines"
+    }
+  ],
+  "audio": {
+    "music": "audio/music.mp3",
+    "musicVolume": 0.4,
+    "voiceoverVolume": 0.9
+  }
+}

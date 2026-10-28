@@ -1,0 +1,46 @@
+{
+  "title": "Vertical fixture",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "shots": [
+    {
+      "id": "wide",
+      "seconds": 3,
+      "image": "images/01_street.jpg",
+      "fit": "contain",
+      "motion": "zoom-in",
+      "caption": "ঢাকার রাস্তা",
+      "transition": "fade",
+      "beat": "landscape image contained in a vertical frame: big blurred backdrop"
+    },
+    {
+      "id": "clip",
+      "seconds": 3,
+      "clip": "clips/street.mp4",
+      "fit": "contain",
+      "color": "#203040",
+      "transition": "wipe",
+      "beat": "contained clip with no image: letterbox in the shot colour"
+    },
+    {
+      "id": "cover",
+      "seconds": 3,
+      "image": "images/02_r1.jpg",
+      "motion": "pan-left",
+      "caption": "Captions wrap sooner in a narrow vertical frame like this one",
+      "transition": "warm-sweep",
+      "transitionSeconds": 0.8,
+      "beat": "cover crop of a landscape image, wrapped caption, warm sweep in a tall frame"
+    },
+    {
+      "id": "end",
+      "seconds": 4,
+      "image": "images/05_r4.jpg",
+      "fit": "contain",
+      "motion": "zoom-out",
+      "lines": ["Thank you", "ধন্যবাদ"],
+      "beat": "closing lines over a contained image"
+    }
+  ]
+}
