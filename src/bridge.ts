@@ -12,17 +12,24 @@ import { asciiLiteral } from "./jsx.ts";
  */
 export function findAfterEffects(): string {
   if (process.env.AFTERFX) return process.env.AFTERFX;
+  const found = afterEffectsInstalls();
+  if (!found.length) throw new Error("After Effects not found; set AFTERFX to the path of AfterFX.exe");
+  return found[0].exe;
+}
+
+/** Installed After Effects versions, newest first: version, AfterFX.exe and its "Support Files" folder. */
+export function afterEffectsInstalls(): { version: number; exe: string; supportDir: string }[] {
   const r = spawnSync("reg", ["query", "HKLM\\SOFTWARE\\Adobe\\After Effects", "/s", "/v", "InstallPath"], {
     encoding: "utf8",
     timeout: 10_000,
   });
-  const found: { version: number; exe: string }[] = [];
+  const found: { version: number; exe: string; supportDir: string }[] = [];
   for (const m of (r.stdout ?? "").matchAll(/After Effects\\([\d.]+)\s+InstallPath\s+REG_SZ\s+(.+)/g)) {
-    const exe = join(m[2].trim(), "AfterFX.exe");
-    if (existsSync(exe)) found.push({ version: parseFloat(m[1]), exe });
+    const supportDir = m[2].trim();
+    const exe = join(supportDir, "AfterFX.exe");
+    if (existsSync(exe)) found.push({ version: parseFloat(m[1]), exe, supportDir });
   }
-  if (!found.length) throw new Error("After Effects not found; set AFTERFX to the path of AfterFX.exe");
-  return found.sort((a, b) => b.version - a.version)[0].exe;
+  return found.sort((a, b) => b.version - a.version);
 }
 
 const RUNS = fileURLToPath(new URL("../.runs/", import.meta.url));

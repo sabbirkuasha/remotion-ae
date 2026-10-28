@@ -13,6 +13,9 @@ src/jsx.ts           Scene -> self-contained .jsx (builder + data, ASCII only)
 src/remo/            remo adapter: timeline.json -> Scene (schema.ts/timing.ts are copies of remo's; keep in sync)
 src/capture/         any Remotion project -> Scene: chrome.ts (DevTools client), remotion-page.ts (open a
                      composition in render mode, seek frames), page.js (in-page tracker/measurer), capture.ts
+ae/RemotionImporter.jsx   the After Effects panel (ScriptUI): runs capture-cli in the background (hidden, via a VBScript
+                     launcher), polls its --progress status file, builds the result with $.evalFile
+src/install-panel.ts copies the panel into each AE's Scripts/ScriptUI Panels, with the remotion-ae path filled in
 src/bridge.ts        run a .jsx in the running After Effects and get the result back
 tools/compare.ts     render the same frames in Remotion (via ../remo) and AE, score them, write side-by-sides
 tools/inspect.ts     print a built project's structure (layers, timing, keyframes, effects, audio levels)
@@ -24,6 +27,9 @@ fixtures/            test projects (features: every remo feature; vertical: 1080
 
 ```
 npm run capture -- <remotion project> --composition <id> [--run] [--replace]      any Remotion project -> AE
+npm run capture -- <remotion project> --list [--progress status.json]             list compositions
+npm run install-panel                                                           install the AE panel
+node tools/test-panel.ts <remotion project> [composition]                       drive the panel end to end in AE
 npm run compare-capture -- <remotion project> --composition <id> [--every 15]    captured vs Remotion, test-output/<id>/
 npm run export  -- <remo project> [--lang bn] [--out f.jsx] [--run] [--replace]   remo timeline -> AE script
 npm run compare -- <remo project> [--lang bn] [--frames 0,45]                    Remotion vs AE, test-output/<name>/
@@ -48,6 +54,10 @@ usually already running.
 - Check things visually with `comp.saveFrameToPng(seconds, new File(path))` and Read the PNG. It returns before
   the file is written: wait for complete PNGs (`tools/png.ts`). Purge afterwards (`tools/purge.jsx`), or AE's RAM
   cache grows by gigabytes per run.
+- Panel gotchas: `system.callSystem` returns nothing for commands wrapped in `cmd /c` (call executables directly);
+  it also blocks AE, so long jobs start hidden through `wscript` + a one-line VBScript and are polled with
+  `app.scheduleTask`. Find node.exe by scanning PATH (this machine uses Volta: C:\Program Files\Volta\node.exe);
+  `where node` returns nothing inside AE. Use `cmd /v:on` + `!errorlevel!` for exit codes.
 - Capture gotchas (see docs/progress.md 2026-10-29): MutationObserver callbacks consume records; visibility
   rules need the `#remotion-canvas` id for specificity; never hide `<defs>`/clip paths; blend modes only mix inside
   their isolated group. Debug in-page state with `window.__ae.debug(ids)` and small probe scripts that use

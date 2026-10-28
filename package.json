@@ -16,6 +16,7 @@
   "scripts": {
     "export": "node src/cli.ts",
     "capture": "node src/capture-cli.ts",
+    "install-panel": "node src/install-panel.ts",
     "compare": "node tools/compare.ts",
     "compare-capture": "node tools/compare-capture.ts",
     "ae": "node src/ae.ts",

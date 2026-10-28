@@ -10,9 +10,13 @@ import { openComposition } from "./remotion-page.ts";
 
 const PAGE_SCRIPT = fileURLToPath(new URL("./page.js", import.meta.url));
 
+/** Where a capture is: `done` of `total` steps within the current stage. */
+export type Progress = { stage: "opening" | "finding" | "measuring" | "artwork"; done: number; total: number; message: string };
+
 export type CaptureOptions = {
   projectDir: string;
-  entry: string;
+  /** Entry file; default: found in the usual places (src/index.ts…). */
+  entry?: string;
   composition: string;
   /** Folder for the layer images (the .jsx goes next to it). */
   outDir: string;
@@ -22,6 +26,7 @@ export type CaptureOptions = {
   referenceFrames?: number[];
   referenceDir?: string;
   log?: (s: string) => void;
+  onProgress?: (p: Progress) => void;
 };
 
 type Matrix = [number, number, number, number, number, number];
@@ -50,8 +55,10 @@ const safeName = (s: string) => s.replace(/[^\w\- ()]+/g, "_").replace(/\s+/g, "
 
 export async function capture(o: CaptureOptions): Promise<{ scene: Scene; notes: string[] }> {
   const log = o.log ?? ((s: string) => console.log(s));
+  const progress = o.onProgress ?? (() => {});
   const scale = o.scale ?? 2;
   const notes: string[] = [];
+  progress({ stage: "opening", done: 0, total: 1, message: "Opening the Remotion project" });
   const comp = await openComposition(o.projectDir, o.entry, o.composition, { log });
   const { chrome, meta: info } = comp;
   const { fps, width: W, height: H, durationInFrames: N } = info;
@@ -66,6 +73,7 @@ export async function capture(o: CaptureOptions): Promise<{ scene: Scene; notes:
     for (let f = 1; f < N; f++) {
       await comp.seek(f);
       await evaluate("window.__ae.drain()");
+      if (f % 5 === 0) progress({ stage: "finding", done: f, total: N, message: `Finding what moves (frame ${f} of ${N})` });
     }
     const summary = await evaluate<{
       layers: string[];
@@ -83,6 +91,7 @@ export async function capture(o: CaptureOptions): Promise<{ scene: Scene; notes:
     if (o.referenceDir) mkdirSync(o.referenceDir, { recursive: true });
     for (let f = 0; f < N; f++) {
       await comp.seek(f);
+      if (f % 5 === 0) progress({ stage: "measuring", done: f, total: N, message: `Measuring ${layerIds.length} layers (frame ${f} of ${N})` });
       const s = await evaluate<Record<string, Sample>>(`window.__ae.sample(${JSON.stringify(layerIds)}, ${JSON.stringify(summary.clips)})`);
       for (const [id, v] of Object.entries(s)) samples.get(id)?.set(f, v);
       if (o.referenceFrames?.includes(f) && o.referenceDir) {
@@ -130,7 +139,8 @@ export async function capture(o: CaptureOptions): Promise<{ scene: Scene; notes:
     type Captured = { id: string; meta: Meta; frames: number[]; iso: Isolated; footage: Footage; blend?: string };
     const captured: Captured[] = [];
     const tmpPng = path.join(imagesDir, "_capture.png");
-    for (const id of layerIds) {
+    for (const [i, id] of layerIds.entries()) {
+      progress({ stage: "artwork", done: i, total: layerIds.length, message: `Rendering layer artwork (${i + 1} of ${layerIds.length})` });
       const frames = [...samples.get(id)!.keys()].sort((a, b) => a - b);
       if (!frames.length) continue;
       const m = summary.meta[id];

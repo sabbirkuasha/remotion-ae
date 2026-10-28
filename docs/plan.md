@@ -120,8 +120,9 @@ improving over time.
 
 ### Packaging
 
-`npx remotion-ae export <remotion project> --composition <id>`, documentation and examples for both audiences
-(Remotion authors and After Effects users).
+- **Done:** the Remotion Importer panel in After Effects (ScriptUI), installed with `npm run install-panel`.
+- Next: a one-click installer (no terminal for setup either), macOS support, maybe a richer UXP panel later; the
+  engine underneath stays the same.
 
 ## Later ideas
 

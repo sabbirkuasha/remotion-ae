@@ -2,6 +2,17 @@
 
 Newest first. Status of each phase is in [plan.md](plan.md).
 
+## 2026-10-29: the After Effects panel (no terminal)
+
+**Remotion Importer** (`ae/RemotionImporter.jsx`), installed with `npm run install-panel`, is the plugin's interface
+for After Effects users: choose the Remotion project folder, pick a composition (read from the project), choose
+quality, Import. The export runs hidden in the background with a progress bar (After Effects stays responsive) and
+the layers are built into the open project. It checks for Node.js (22.18+), the script file-access preference and
+the project's dependencies (with a button to install them), and explains what is missing.
+
+Tested end to end by driving the panel through the bridge (`tools/test-panel.ts`): the test animation lists in 5 s
+and imports in 62 s (52 layers). Installed into After Effects 2026 on this machine.
+
 ## 2026-10-29: Phase 2 capture works on the real test animation
 
 `npm run capture -- <remotion project> --composition <id>` exports any Remotion composition. On the test animation

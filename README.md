@@ -27,7 +27,34 @@ Effects user takes it from there without learning Remotion.
 
 Details: [docs/goal.md](docs/goal.md), [docs/plan.md](docs/plan.md), [docs/progress.md](docs/progress.md).
 
+## In After Effects: the Remotion Importer panel
+
+No terminal needed. Once installed (see below), open **Window > Remotion Importer.jsx** in After Effects:
+
+1. **Project:** Browse… to the Remotion project's folder (the one with `package.json`).
+2. **Composition:** pick one from the list (it is read from the project).
+3. **Quality:** 2x is sharp and the default; 3x if you plan to scale layers up a lot.
+4. **Import into this project.** A progress bar follows the export (about a minute for a 9-second animation);
+   the layers then appear in the open project. Edit > Undo removes the import in one step.
+
+If the project's dependencies aren't installed yet, the panel offers a button to install them. Leave "Replace an
+earlier import" off unless you want the previous import of that composition (and any edits to it) replaced.
+
+**Install once:**
+
+1. Install [Node.js](https://nodejs.org) 22.18 or newer.
+2. Get remotion-ae (download it, or `git clone https://github.com/sabbirkuasha/remotion-ae.git`), then run
+   `npm install` and `npm run install-panel` in its folder. That copies the panel into every installed After Effects
+   (`Support Files/Scripts/ScriptUI Panels`); if that folder needs administrator rights, run it from a terminal
+   opened with "Run as administrator".
+3. In After Effects: Edit > Preferences > Scripting & Expressions > turn on **Allow Scripts to Write Files and
+   Access Network** (the panel runs the export and reads its progress). Restart After Effects.
+
+The panel works on Windows for now.
+
 ## Any Remotion project (capture)
+
+The panel runs this export; it can also be run directly:
 
 ```
 npm run capture -- <remotion project> --composition <id> [--entry src/index.ts] [--out dir] [--scale 2] [--run]
