@@ -14,11 +14,15 @@ After Effects: File > Scripts > Run Script File…  →  the whole edit, ready t
 
 ## Status
 
+The goal is **any Remotion animation, unchanged**: the person who made it runs one export command, and an After
+Effects user takes it from there without learning Remotion.
+
 | Phase | What it covers | State |
 |---|---|---|
 | 1 | Projects made with **remo**, a Remotion player driven by a `timeline.json` | working, verified against Remotion renders |
-| 2 | Any Remotion project, through remotion-ae components that also describe themselves for After Effects | planned |
-| 3 | A render-to-layers fallback for anything the components can't describe | planned |
+| 2 | **Any Remotion project**: capture every element on every frame while it plays, rebuild it as layers | next |
+| 3–5 | Clean eased keyframes, SVG and CSS styling, a video fallback for anything else, audio | planned |
+| 6 | **three.js** scenes rebuilt in After Effects 3D: camera, lights, models, animation | planned |
 
 Details: [docs/goal.md](docs/goal.md), [docs/plan.md](docs/plan.md), [docs/progress.md](docs/progress.md).
 

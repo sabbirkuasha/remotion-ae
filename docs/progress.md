@@ -2,6 +2,22 @@
 
 Newest first. Status of each phase is in [plan.md](plan.md).
 
+## 2026-10-28 (late): three.js in scope
+
+three.js animations should be rebuilt with After Effects' own 3D as closely as possible, improving over time
+(Phase 6 in [plan.md](plan.md)). Feasibility check passed: a script imported a generated GLB (a cube with a PBR
+material) into After Effects 2026 as a 3D model layer, added a camera and a parallel light, set its orientation and
+rendered it shaded with the Advanced 3D renderer. Renderers available by script: `ADBE Advanced 3d`,
+`ADBE Calder` (Classic 3D), `ADBE Ernst` (Cinema 4D). Next 3D question: the scale between glTF units and pixels.
+
+## 2026-10-28 (late): goal clarified
+
+The primary goal is **any Remotion animation → After Effects, with no changes to the Remotion project**, so After
+Effects users never need to learn Remotion. Phase 1 (remo) proved the After Effects side. The plan now builds
+**capture**: step through a Remotion composition in Chrome, read every element on every frame, and rebuild it as
+layers and keyframes. The earlier idea of special components was dropped: it would make Remotion authors change
+their code. Updated [goal.md](goal.md) and [plan.md](plan.md).
+
 ## 2026-10-28 (evening): open source
 
 - The repository is public: https://github.com/sabbirkuasha/remotion-ae, MIT license.
@@ -79,4 +95,5 @@ Newest first. Status of each phase is in [plan.md](plan.md).
    shows. The same happens to a contained still with `motion: "none"` (`KenBurns.tsx`); both confirmed by
    rendering with remo. The After Effects export shows the intended result. The fix in remo is small
    (`position: relative` on the video/image). Fix it?
-3. **Phase 2 scope** (Remotion components, see [plan.md](plan.md)) when you are ready.
+3. **Confirm Phase 2** (capture prototype, see [plan.md](plan.md)), and share any Remotion projects you want
+   used as test cases.
