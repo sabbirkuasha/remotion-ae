@@ -20,6 +20,7 @@
     "compare": "node tools/compare.ts",
     "compare-capture": "node tools/compare-capture.ts",
     "ae": "node src/ae.ts",
+    "package": "node tools/package.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

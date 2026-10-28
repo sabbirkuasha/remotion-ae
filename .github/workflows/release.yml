@@ -1,0 +1,55 @@
+# Builds the Windows download (dist/remotion-ae-<version>-windows.zip) and attaches it to a GitHub release.
+#   Release:   set "version" in package.json, commit, then push a matching tag:
+#              git tag v0.2.0 && git push origin v0.2.0
+#              (a release created on github.com with a new v* tag works too; the zip is added to it)
+#   Test build: Actions > Release > Run workflow; the zip is under the run's artifacts, nothing is published.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: remotion-ae-windows
+          path: dist/*.zip
+
+      - name: Attach the download to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.zip --title "remotion-ae $version" --generate-notes --notes "$(cat <<EOF
+          **Install (Windows):** download **remotion-ae-$version-windows.zip** below (not "Source code"), extract it,
+          and double-click **Install.cmd**. Needs After Effects and Node.js 22.18+.
+          Step-by-step guide: [README](https://github.com/$GITHUB_REPOSITORY#install)
+          EOF
+          )"
+          fi

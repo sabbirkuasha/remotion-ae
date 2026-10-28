@@ -15,7 +15,11 @@ src/capture/         any Remotion project -> Scene: chrome.ts (DevTools client),
                      composition in render mode, seek frames), page.js (in-page tracker/measurer), capture.ts
 ae/RemotionImporter.jsx   the After Effects panel (ScriptUI): runs capture-cli in the background (hidden, via a VBScript
                      launcher), polls its --progress status file, builds the result with $.evalFile
-src/install-panel.ts copies the panel into each AE's Scripts/ScriptUI Panels, with the remotion-ae path filled in
+src/install-panel.ts copies the panel into each AE's Scripts/ScriptUI Panels, with the remotion-ae path filled in;
+                     --app-dir copies remotion-ae there first, --uninstall removes it; elevates through UAC if needed
+packaging/           Install.cmd / Uninstall.cmd: the double-click setup in the release download
+tools/package.ts     builds the release download dist/remotion-ae-<version>-windows.zip (ae/, src/, the .cmd files)
+.github/workflows/release.yml   on a v* tag: typecheck, package, attach the zip to the GitHub release
 src/bridge.ts        run a .jsx in the running After Effects and get the result back
 tools/compare.ts     render the same frames in Remotion (via ../remo) and AE, score them, write side-by-sides
 tools/inspect.ts     print a built project's structure (layers, timing, keyframes, effects, audio levels)
@@ -34,8 +38,13 @@ npm run compare-capture -- <remotion project> --composition <id> [--every 15]   
 npm run export  -- <remo project> [--lang bn] [--out f.jsx] [--run] [--replace]   remo timeline -> AE script
 npm run compare -- <remo project> [--lang bn] [--frames 0,45]                    Remotion vs AE, test-output/<name>/
 npm run ae      -- <script.jsx>                                                  run any script in AE
+npm run package                                                                 release zip in dist/
 npm run typecheck
 ```
+
+Most users install from the GitHub release zip (README "Install"), not a clone. The panel and capture must keep
+working from it: no runtime dependencies in that path (zod is only for the remo exporter), nothing outside
+`ae/` and `src/`. A release is a `v<version>` tag matching package.json; the workflow builds and publishes it.
 
 After changing the adapter or builder: `npm run typecheck`, then `npm run compare` on `../remo/examples/rickshaw`,
 `fixtures/features` and `fixtures/vertical`, and look at the flagged images in `test-output/<name>/compare/`.

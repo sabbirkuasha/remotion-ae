@@ -121,8 +121,9 @@ improving over time.
 ### Packaging
 
 - **Done:** the Remotion Importer panel in After Effects (ScriptUI), installed with `npm run install-panel`.
-- Next: a one-click installer (no terminal for setup either), macOS support, maybe a richer UXP panel later; the
-  engine underneath stays the same.
+- **Done:** a download on GitHub Releases (`remotion-ae-<version>-windows.zip`) with a double-click `Install.cmd`
+  (no terminal for setup either), built and published by a workflow when a `v*` tag is pushed.
+- Next: macOS support, maybe a richer UXP panel later; the engine underneath stays the same.
 
 ## Later ideas
 

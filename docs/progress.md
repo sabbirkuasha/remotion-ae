@@ -2,6 +2,26 @@
 
 Newest first. Status of each phase is in [plan.md](plan.md).
 
+## 2026-10-29: release download and step-by-step README
+
+Most people will get remotion-ae from GitHub Releases, not by cloning, so there is now a download:
+`remotion-ae-<version>-windows.zip` (`npm run package`) with `ae/`, `src/` and a double-click `Install.cmd`. It
+checks Node.js, copies remotion-ae to `%LOCALAPPDATA%\remotion-ae` (so the download can be deleted) and installs the
+panel into every After Effects, asking for administrator rights through one UAC prompt only when the panel folder
+needs them (Program Files usually does). `Uninstall.cmd` removes both. The panel and capture need no npm packages,
+so the download has no `node_modules`. `.github/workflows/release.yml` builds the zip on a `v*` tag and publishes
+the release with install notes. GitHub Packages was not used: installing even a public npm package from it needs a
+GitHub token, which is no use to After Effects users.
+
+The README now starts with install and import steps for After Effects users, then troubleshooting; the command
+line, remo and development sections follow.
+
+Checked: the zip builds; capture lists the test animation's compositions when run from the extracted zip with no
+`node_modules`; `Install.cmd`'s flow, messages and Node version check; the UAC command's quoting with spaces and
+apostrophes in paths (run without elevation). **Waiting on the user:** running `Install.cmd` from the zip for real
+(it writes into After Effects' folder), the UAC path on an After Effects under C:\Program Files, and the first
+tagged release.
+
 ## 2026-10-29: the After Effects panel (no terminal)
 
 **Remotion Importer** (`ae/RemotionImporter.jsx`), installed with `npm run install-panel`, is the plugin's interface

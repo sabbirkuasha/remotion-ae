@@ -1,5 +1,6 @@
 // Remotion Importer: an After Effects panel that imports a Remotion animation as layers, keyframes and masks.
-// Install with `npm run install-panel` (copies this file into After Effects' ScriptUI Panels folder), restart
+// Install with Install.cmd from the release download, or `npm run install-panel` in a clone (either copies this
+// file into After Effects' ScriptUI Panels folder, with the remotion-ae folder filled in), restart
 // After Effects, then open Window > Remotion Importer.jsx. Can also be run once via File > Scripts > Run Script File.
 // The work is done by remotion-ae's capture (Node.js) in the background; this panel starts it, shows its progress,
 // and builds the result into the open project. ExtendScript (ES3) + ScriptUI. Windows for now.
@@ -223,7 +224,7 @@
   function problems(dir) {
     if ($.os.indexOf("Windows") < 0) return "This panel works on Windows for now.";
     if (!canWriteFiles()) return 'Turn on Edit > Preferences > Scripting & Expressions > "Allow Scripts to Write Files and Access Network", then try again.';
-    if (!new File(CAPTURE).exists) return "remotion-ae was not found at " + REMOTION_AE + ". Reinstall the panel with npm run install-panel.";
+    if (!new File(CAPTURE).exists) return "remotion-ae was not found at " + REMOTION_AE + ". Install remotion-ae again: Install.cmd from the download (github.com/sabbirkuasha/remotion-ae/releases).";
     if (!dir) return "Choose the Remotion project folder (the folder with package.json).";
     if (!new File(dir + "/package.json").exists) return "That folder has no package.json; choose the Remotion project's main folder.";
     if (!new Folder(dir + "/node_modules/remotion").exists) {
