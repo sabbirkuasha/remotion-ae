@@ -8,8 +8,9 @@ it writes one script that rebuilds the video in After Effects as real comps, tex
 not as a flattened render.
 
 ```
-npm run export -- my-video/        →  my-video/renders/after-effects.jsx
-After Effects: File > Scripts > Run Script File…  →  the whole edit, ready to work on
+npm run capture -- my-remotion-project/ --composition MyVideo
+      →  my-remotion-project/out/after-effects/MyVideo.jsx  (+ layers/)
+After Effects: File > Scripts > Run Script File…  →  the animation as layers and keyframes, ready to work on
 ```
 
 ## Status
@@ -20,13 +21,43 @@ Effects user takes it from there without learning Remotion.
 | Phase | What it covers | State |
 |---|---|---|
 | 1 | Projects made with **remo**, a Remotion player driven by a `timeline.json` | working, verified against Remotion renders |
-| 2 | **Any Remotion project**: capture every element on every frame while it plays, rebuild it as layers | next |
-| 3–5 | Clean eased keyframes, SVG and CSS styling, a video fallback for anything else, audio | planned |
+| 2 | **Any Remotion project**: capture every element on every frame while it plays, rebuild it as layers | working on the first real project (SSIM 0.9998+); more test projects next |
+| 3–5 | Clean eased keyframes, editable vectors and text, a video fallback for canvas/WebGL, audio | planned |
 | 6 | **three.js** scenes rebuilt in After Effects 3D: camera, lights, models, animation | planned |
 
 Details: [docs/goal.md](docs/goal.md), [docs/plan.md](docs/plan.md), [docs/progress.md](docs/progress.md).
 
-## What you get in After Effects
+## Any Remotion project (capture)
+
+```
+npm run capture -- <remotion project> --composition <id> [--entry src/index.ts] [--out dir] [--scale 2] [--run]
+```
+
+The project needs its own `npm install` (capture uses the project's Remotion version). It opens the composition the
+way `remotion render` does, steps through every frame, and works out:
+
+- **Layers:** every element that moves, appears/disappears, or starts a `<Sequence>` becomes an After Effects layer,
+  named after its `<Sequence>` (as in the Remotion Studio timeline). A sequence with several layers becomes a
+  precomp. Everything that never changes is one "Static" layer at the bottom.
+- **Motion:** position, scale, rotation and opacity keyframes around the element's CSS transform origin.
+- **Timing:** in and out points from when each element is on screen.
+- **Clip paths** that animate become animated masks; **blend modes** that mix with other layers become After
+  Effects blend modes (blends inside an element stay in its artwork, where they render exactly).
+- **Artwork:** each layer's look is rendered once by Chrome, at rest, as a transparent image at 2x resolution
+  (including what lies outside the frame), so it looks exactly like Remotion.
+
+For now the artwork is an image (editable vector shapes and text come later), motion with easing gets a keyframe
+per frame (simplified later), and HTML elements get position only (SVG gets full transforms).
+
+## remo projects
+
+The rest of this README covers Phase 1, projects made with the remo player.
+
+```
+npm run export -- my-video/        →  my-video/renders/after-effects.jsx
+```
+
+## What you get in After Effects (remo)
 
 Everything goes into one folder named after the project, inside the project that is open. **Edit > Undo** removes
 it again in one step.

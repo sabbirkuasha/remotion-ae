@@ -11,6 +11,8 @@ src/ir.ts            Scene: plain-data AE project (footage, comps, layers, keyfr
 ae/builder.jsx       ExtendScript (ES3) that builds a Scene inside After Effects
 src/jsx.ts           Scene -> self-contained .jsx (builder + data, ASCII only)
 src/remo/            remo adapter: timeline.json -> Scene (schema.ts/timing.ts are copies of remo's; keep in sync)
+src/capture/         any Remotion project -> Scene: chrome.ts (DevTools client), remotion-page.ts (open a
+                     composition in render mode, seek frames), page.js (in-page tracker/measurer), capture.ts
 src/bridge.ts        run a .jsx in the running After Effects and get the result back
 tools/compare.ts     render the same frames in Remotion (via ../remo) and AE, score them, write side-by-sides
 tools/inspect.ts     print a built project's structure (layers, timing, keyframes, effects, audio levels)
@@ -21,7 +23,9 @@ fixtures/            test projects (features: every remo feature; vertical: 1080
 ## Commands
 
 ```
-npm run export  -- <remo project> [--lang bn] [--out f.jsx] [--run] [--replace]   write (and build) the AE script
+npm run capture -- <remotion project> --composition <id> [--run] [--replace]      any Remotion project -> AE
+npm run compare-capture -- <remotion project> --composition <id> [--every 15]    captured vs Remotion, test-output/<id>/
+npm run export  -- <remo project> [--lang bn] [--out f.jsx] [--run] [--replace]   remo timeline -> AE script
 npm run compare -- <remo project> [--lang bn] [--frames 0,45]                    Remotion vs AE, test-output/<name>/
 npm run ae      -- <script.jsx>                                                  run any script in AE
 npm run typecheck
@@ -44,6 +48,10 @@ usually already running.
 - Check things visually with `comp.saveFrameToPng(seconds, new File(path))` and Read the PNG. It returns before
   the file is written: wait for complete PNGs (`tools/png.ts`). Purge afterwards (`tools/purge.jsx`), or AE's RAM
   cache grows by gigabytes per run.
+- Capture gotchas (see docs/progress.md 2026-10-29): MutationObserver callbacks consume records; visibility
+  rules need the `#remotion-canvas` id for specificity; never hide `<defs>`/clip paths; blend modes only mix inside
+  their isolated group. Debug in-page state with `window.__ae.debug(ids)` and small probe scripts that use
+  `openComposition()`.
 - Known remo bug: contained clips (and contained stills with `motion: "none"`) are hidden behind remo's own
   backdrop, so `fixtures/features` frames 0 and 45 are expected to differ until remo is fixed.
 - Scripts run in the user's open project. Clean up what tests create (compare uses `replace` to swap its own

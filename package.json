@@ -15,7 +15,9 @@
   "type": "module",
   "scripts": {
     "export": "node src/cli.ts",
+    "capture": "node src/capture-cli.ts",
     "compare": "node tools/compare.ts",
+    "compare-capture": "node tools/compare-capture.ts",
     "ae": "node src/ae.ts",
     "typecheck": "tsc --noEmit"
   },

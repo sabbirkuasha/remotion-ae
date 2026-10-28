@@ -2,6 +2,50 @@
 
 Newest first. Status of each phase is in [plan.md](plan.md).
 
+## 2026-10-29: Phase 2 capture works on the real test animation
+
+`npm run capture -- <remotion project> --composition <id>` exports any Remotion composition. On the test animation
+(a real Illustrator design animated in Remotion; 9 s, ~64,000 SVG elements):
+
+- 46 layers + a static background, in 6 comps: one precomp per `<Sequence>` that holds several layers (RISING,
+  THE, STANDARD, Tagline, Bottom bars), named exactly like the Studio timeline (R, I, S…, Green bar…).
+- Motion as keyframes (position/scale/rotation/opacity around each element's CSS transform origin), the arrow's
+  animated clip path as an animated mask, `<Sequence>` timing as in/out points. Capture takes about 65 s.
+- **Remotion vs After Effects: SSIM 0.9998 to 1.0000 on every checked frame** (`npm run compare-capture`).
+
+Fixed along the way (each one found with the comparison and side-by-side images):
+- A MutationObserver's callback consumes its records; `takeRecords()` then returns nothing.
+- `#remotion-canvas *` (has an id) outranks `[data-ae-show] *` even with `!important`; the show/hide rules need
+  the id too.
+- Hiding everything also hid clip-path shapes in `<defs>`, and an SVG clip path with hidden shapes clips
+  everything away (the ribbons came out empty).
+- Element registration has to walk through elements React didn't create, or it misses parts of the tree.
+- Blend modes only mix within their nearest isolated group (clip-path, opacity, filter… create one). A blend
+  that stays inside its layer is now rendered as part of that layer's artwork (exact); only blends that reach
+  outside their layer become separate AE layers with the matching blend mode. This took the ribbons from
+  0.97 to 0.9999.
+- Each `<Sequence>` boundary starts a layer, even if nothing in it moves (the arrow pieces), so paint order holds.
+
+## 2026-10-28 (night): what the test animation taught about Remotion projects
+
+- **Layers in Remotion are `<Sequence>`s.** Remotion Studio's timeline shows one row per `<Sequence>`; the user
+  expects the same elements as separate layers in After Effects. Capture should map each sequence to an AE layer
+  (or precomp, when nested) with matching in/out points and names.
+- Studio folds sequences created at the same JSX spot (a loop) into one row ("+N, programmatically duplicated").
+  Capture should still give each instance its own AE layer.
+- Projects that load data into React state after mount (fetch + `delayRender` + `setState`) can misbehave in
+  Studio's development mode (remounts); rendering is fine. Capture runs in render mode, like `remotion render`.
+- Designers' tricks appear in real files: the test design draws a word twice to weave an arrow through it. The
+  animation repaints it in an equivalent order (SSIM 0.9999) so each letter is one layer.
+
+## 2026-10-28 (night): Phase 2 test case, step 1
+
+A real Illustrator design (client work, kept outside this repository) was animated in Remotion from its SVG export,
+as the main real-world test case for capture. What it will exercise: about 63,700 SVG shapes (two halftone
+ribbons hold 31,800 each), 58 gradients, clipping paths, a drop-shadow filter, colour-dodge blending, a hidden
+layer, outlined text animated per letter (CSS transforms on SVG groups), an arrow drawn on with an animated
+clip path, a `spring()` scale, and a sine drift. Waiting for the user's review of the animation before capture work.
+
 ## 2026-10-28 (late): three.js in scope
 
 three.js animations should be rebuilt with After Effects' own 3D as closely as possible, improving over time

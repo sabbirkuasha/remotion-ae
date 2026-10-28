@@ -225,7 +225,12 @@ var remotionAE = (function () {
     }
   }
 
-  var BLEND = { normal: "NORMAL", screen: "SCREEN", add: "ADD", subtract: "SUBTRACT", multiply: "MULTIPLY", overlay: "OVERLAY" };
+  var BLEND = {
+    normal: "NORMAL", screen: "SCREEN", add: "ADD", subtract: "SUBTRACT", multiply: "MULTIPLY", overlay: "OVERLAY",
+    darken: "DARKEN", lighten: "LIGHTEN", "color-dodge": "COLOR_DODGE", "color-burn": "COLOR_BURN",
+    "hard-light": "HARD_LIGHT", "soft-light": "SOFT_LIGHT", difference: "DIFFERENCE", exclusion: "EXCLUSION",
+    hue: "HUE", saturation: "SATURATION", color: "COLOR", luminosity: "LUMINOSITY"
+  };
   var MATTE = { alpha: "ALPHA", "alpha-inverted": "ALPHA_INVERTED", luma: "LUMA", "luma-inverted": "LUMA_INVERTED" };
   var MASK_MODE = { add: "ADD", subtract: "SUBTRACT", intersect: "INTERSECT", none: "NONE" };
 
@@ -266,6 +271,7 @@ var remotionAE = (function () {
     setAnim(group.property("ADBE Opacity"), tr.opacity, fps);
 
     if (spec.blend) layer.blendingMode = BlendingMode[BLEND[spec.blend]];
+    if (spec.collapse) layer.collapseTransformation = true;
     if (spec.enabled === false) layer.enabled = false;
     if (spec.comment) layer.comment = spec.comment;
 

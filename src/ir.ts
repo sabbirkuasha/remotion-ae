@@ -60,7 +60,10 @@ export type Transform = {
   opacity?: Anim<number>;
 };
 
-export type BlendMode = "normal" | "screen" | "add" | "subtract" | "multiply" | "overlay";
+export type BlendMode =
+  | "normal" | "screen" | "add" | "subtract" | "multiply" | "overlay" | "darken" | "lighten" | "color-dodge"
+  | "color-burn" | "hard-light" | "soft-light" | "difference" | "exclusion" | "hue" | "saturation" | "color"
+  | "luminosity";
 
 export type Effect = {
   /** AE match name, e.g. "ADBE Gaussian Blur 2". */
@@ -125,6 +128,8 @@ type LayerBase = {
   matte?: { layer: string; type: "alpha" | "alpha-inverted" | "luma" | "luma-inverted" };
   /** false = video switched off (e.g. a matte source). */
   enabled?: boolean;
+  /** Collapse transformations (precomps: inner blend modes then act on the layers below, like CSS blending). */
+  collapse?: boolean;
   /** Audio on/off and level in dB ([left, right]). */
   audio?: { enabled: boolean; levels?: Anim<Vec> };
   comment?: string;

@@ -49,16 +49,31 @@ open the Remotion project's bundle in Chrome the way Remotion's renderer does, s
 frame read every element's geometry, transform, opacity, colours, text, SVG, media and timing. Elements keep their
 identity across frames, so each one becomes one After Effects layer with keyframes.
 
-### Phase 2: capture prototype
+### Phase 2: capture  *(working on the real test animation: SSIM 0.9998+ on 68 frames; more test projects next)*
 
-- Step any composition frame by frame and record what is on screen (the riskiest part: hooking into Remotion's
-  renderer per frame; prototyped first).
-- Boxes and backgrounds (shape layers with rounded corners), text (text layers), images, video, 2D transforms,
-  opacity, `<Sequence>` timing (layer in/out points).
-- Keyframes on every frame at first.
-- Test projects: small Remotion compositions written for this (text, shapes, images, motion), plus remo
-  projects captured this way and compared with the Phase 1 export.
-- **Done when:** the test projects match in `compare`.
+`npm run capture -- <remotion project> --composition <id>` writes `<project>/out/after-effects/<id>.jsx` + `layers/`.
+
+How it works (`src/capture/`):
+1. Bundle the project with its own Remotion packages, start Remotion's server, open the composition in headless
+   Chrome in render mode (the same page protocol as `remotion render`), and step through every frame.
+2. **Find layers:** a MutationObserver records which elements React changes, which mount or unmount (`<Sequence>`
+   boundaries), and which use `mix-blend-mode`. Elements keep a stable identity across remounts (their position in
+   React's tree), so a letter that a `<Sequence>` mounts at 2.3 s is the same layer at every frame.
+3. **Measure:** on every frame, each layer's transform (SVG screen matrix), cumulative opacity, and animated clip
+   paths (as polygons).
+4. **Artwork:** each layer rendered once, in isolation, at rest (its animated transform, opacity and clip turned
+   off, nested layers hidden), as a transparent PNG at 2x, including what lies beyond the frame edge.
+5. **Scene:** one AE layer per element: anchor at its CSS transform origin, position/scale/rotation/opacity
+   keyframes from the measured matrices, masks from animated clips, blend modes from CSS. Layers are named after
+   their `<Sequence>`; a sequence with several layers becomes a precomp. Everything that never changes becomes one
+   "Static" layer at the bottom.
+
+Limits for now: artwork is raster (vector shapes are Phase 4); keyframes are per frame where motion is eased
+(Phase 3 simplifies them); HTML elements get position only (SVG gets full transforms); only `<rect>` clip paths.
+Paint order follows the DOM (z-index and positioning are not reordered yet).
+
+**Done when:** the test animation (a real Illustrator design animated in Remotion) and small test compositions
+match in `npm run compare-capture`.
 
 ### Phase 3: editable motion
 
